@@ -91,7 +91,7 @@ def rand_1_to_7(): # Hàm này trả về một số random từ 1 đến 7
 ####################################################################################
 
 
-def drawSquare(num, pos):
+def drawSquare(num, pos): # Vẽ những hình vuông nhỏ
     if num != 0:
         if num == 1:
             DISPLAYSURF.blit(IMG_square, pos)
@@ -109,18 +109,18 @@ def drawSquare(num, pos):
             DISPLAYSURF.blit(IMG_Z_, pos)
 
 
-def getXY(column, row):
+def getXY(column, row): # Hàm lấy vị trí để vẽ dựa vào cột và hàng trên board
     return (X_MARGIN + column * SQUARESIZE, Y_MARGIN + row *  SQUARESIZE)
 
-def addShapeToBoard(shape, board):
+def addShapeToBoard(shape, board): # Hàm dùng để thêm shape vào board khi shape đã chạm đến đáy
     for row in range(4):
         for column in range(4):
             if shape.y + row >= 0 and shape.data[shape.option][row][column] != 0:
                 board.data[row + shape.y][column + shape.x] = shape.data[shape.option][row][column]
 
-def delRowsAmination(board, indexRowsDel, shape_next, score, lines):
+def delRowsAmination(board, indexRowsDel, shape_next, score, lines): # Xoá hàng đã đủ
     indexRowsDel.reverse()
-
+    # Hiệu ứng
     board_copy = Board()
     board_copy.data = board.data.copy()
     for index in indexRowsDel:
@@ -136,13 +136,13 @@ def delRowsAmination(board, indexRowsDel, shape_next, score, lines):
         lines.draw()
         pygame.display.update()
         FPSCLOCK.tick(FPS)
-
+    # Xoá và chèn thêm hàng trống
     for index in indexRowsDel:
         board.data.pop(index)
     for _ in indexRowsDel:
         board.data.insert(0, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 
-def newShape():
+def newShape(): # Tạo shape mới ngẫu nhiên
     data = []
     i = rand_1_to_7()
     if i == 1:
@@ -318,15 +318,15 @@ class Shape():
         self.option = 0
         self.x = int((BOARD_COLUMN - 4)/2)
         self.y = -4
-        self.reached = False
-        self.is_fast = False
-    def draw(self):
+        self.reached = False # Kiểm tra shape đã chạm hay chưa
+        self.is_fast = False # Kiểm tra có rơi nhanh hay không
+    def draw(self): # Vẽ shape
         for row in range(4):
             for column in range(4):
                 if self.y + row >= 0:
                     drawSquare(self.data[self.option][row][column], getXY(column + self.x, row + self.y))
 
-    def draw_next(self):
+    def draw_next(self): # Vẽ shape tiếp theo
         for row in range(2, 4):
             for column in range(4):
                 drawSquare(self.data[self.option][row][column], (X_SHAPENEXT + column * SQUARESIZE, Y_SHAPENEXT + (row-2) * SQUARESIZE))
@@ -356,7 +356,7 @@ class Shape():
                 self.y -= 1
                 self.reached = True
     
-    def trueShape(shape, board):
+    def trueShape(shape, board): # Kiểm tra shape có thể nằm trên board hay không
         for row in range(4):
             for column in range(4):
                 if shape.data[shape.option][row][column] != 0:
@@ -397,14 +397,14 @@ class Board():
                 drawSquare(self.data[row][column], getXY(column, row))
     
 
-class Num5():
+class Num5(): # 5 số ở Score và Lines
     def __init__(self, x, y):
         self.data = 0
         self.x = x
         self.y = y
-    def add(self, val):
-        self.data += val
-    def draw(self):
+    def add(self, val): # Cộng thêm giá trị
+        self.data += val 
+    def draw(self): 
         listNum = [int(x) for x in str(self.data)]
         for i in range(5 - len(listNum)):
             listNum.insert(0, None)
@@ -452,7 +452,7 @@ class Button():
             DISPLAYSURF.blit(self.img, (self.x, self.y))
 
 
-class Heading():
+class Heading(): 
     def __init__(self, img, x, y, width, height):
         self.img = img
         self.x = x
@@ -510,7 +510,7 @@ class Scenes():
         change = False
         fall = False
         time_fall = TIME_FALL
-        const_time_fast = 1
+        const_time_fast = 1 # Rơi nhanh
         score.data = 0
         lines.data = 0
         isGameover = False
@@ -546,18 +546,19 @@ class Scenes():
 
             indexRowsDel = []
             for row in range(len(board.data)):
+                # Nếu không còn ô trống trong hàng thì thêm vào index
                 if 0 not in board.data[row]:
                     indexRowsDel.append(row)
             numRowDel = len(indexRowsDel)
             if numRowDel > 0:
                 delRowsAmination(board, indexRowsDel, shape_next, score, lines)
-                score.add(numRowDel ** 2)
-                lines.add(numRowDel)
+                score.add(numRowDel ** 2) # Tăng điểm
+                lines.add(numRowDel) # tăng lines
             if shape.is_fast == True:
-                const_time_fast = 15
+                const_time_fast = 20 # Rơi nhanh hơn 20 lần
             else:
                 const_time_fast = 1
-            const_time_lines = (int(lines.data/10))*0.1
+            const_time_lines = (int(lines.data/10))*0.1 # Rơi nhanh theo Lines
             if time_fall >= TIME_FALL:
                 time_fall = 0
                 fall = True
@@ -567,7 +568,7 @@ class Scenes():
             right = False
             down = False
             change = False
-            time_fall += const_time_fast*(1 + const_time_lines)
+            time_fall += const_time_fast*(1 + const_time_lines) # Đếm thời gian để rơi
             pygame.display.update()
             FPSCLOCK.tick(FPS)
         self.option = 2
